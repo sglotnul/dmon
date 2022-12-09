@@ -33,7 +33,7 @@ namespace Dmon
             {
                 { ColumnDataType.DateTime, c => ((DateTimePicker)c).Value },
                 { ColumnDataType.Date, c => ((DateTimePicker)c).Value },
-                { ColumnDataType.Bool, c => ((DateTimePicker)c).Checked },
+                { ColumnDataType.Bool, c => ((CheckBox)c).Checked },
                 { ColumnDataType.Int, c => ((CustomNumericUpDown)c).Value },
                 { ColumnDataType.Double, c => ((CustomNumericUpDown)c).Value },
                 { ColumnDataType.String, c => ((TextBox)c).Text },
@@ -97,10 +97,11 @@ namespace Dmon
 
                 var control = ControlsMapping[configuration.ColumnDataType].Invoke(column.Value);
 
-                var controlWithValue = new GroupedControlWithValue(column.ColumnName, control, ValueMethodsMapping[configuration.ColumnDataType]);
+                var controlWithValue = new GroupedControlWithValue(control, ValueMethodsMapping[configuration.ColumnDataType]);
                 if (!(configuration.IsRequired || configuration.IsPrimaryKey))
-                    controlWithValue = new NullableControl(column.ColumnName, control, ValueMethodsMapping[configuration.ColumnDataType]);
+                    controlWithValue = new NullableControlWithValue(control, ValueMethodsMapping[configuration.ColumnDataType]);
 
+                controlWithValue.Name = column.ColumnName;
                 controlWithValue.Text = configuration.ColumnVerboseName;
                 controlWithValue.Dock = DockStyle.Top;
 

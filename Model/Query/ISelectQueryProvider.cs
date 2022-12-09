@@ -6,7 +6,8 @@ namespace Dmon.Model
     {
         ISelectQueryProvider Where(string field, object value);
         IExecutable<DataTable> OrderBy(string field, bool ascending = true);
-        ISelectQueryProvider InRange(string field, object from, object to);
+        ISelectQueryProvider Greater(string field, object value);
+        ISelectQueryProvider Less(string field, object value);
         ISelectQueryProvider Contains(string field, string substring);
     }
 }

@@ -49,21 +49,28 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CellData.cs" />
+    <Compile Include="ConditionsComponent.cs" />
     <Compile Include="Configuration\TableBuilder.cs" />
     <Compile Include="Controls\CustomNumericUpDown.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\GroupedControlWithValue.cs">
+    <Compile Include="Controls\FilterControl.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\GroupedControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Controls\NullableControl.cs">
+    <Compile Include="Controls\NullableControlWithValue.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\EntityForm\EntityForm.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\RangeControl.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Controls\SideMenu\SideMenu.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Controls\TableTabControl.cs">
       <SubType>Component</SubType>
@@ -81,6 +88,9 @@
     </Compile>
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GroupedControlWithValue.cs">
+      <SubType>Component</SubType>
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -12,9 +12,12 @@ namespace Dmon.Model
     {
         private readonly SqlConnection _connection;
         private StringBuilder _queryBuilder;
+        private string _orderBy = null;
+        private string _orderDirection = null;
 
         private List<string[]> _whereConditions = new List<string[]>();
-        private List<string[]> _inRangeConditions = new List<string[]>();
+        private List<string[]> _greaterConditions = new List<string[]>();
+        private List<string[]> _lessConditions = new List<string[]>();
         private List<string[]> _containsConditions = new List<string[]>();
 
         public SelectQueryProvider(SqlConnection connection, string table, string[] fields)
@@ -29,14 +32,21 @@ namespace Dmon.Model
 
         public ISelectQueryProvider Where(string field, object value)
         {
-            _whereConditions.Add(new string[] { field, value.ToString() });
+            _whereConditions.Add(new string[] { field, value?.ToString() });
 
             return this;
         }
 
-        public ISelectQueryProvider InRange(string field, object from, object to)
+        public ISelectQueryProvider Greater(string field, object value)
         {
-            _inRangeConditions.Add(new string[] { field, from.ToString(), to.ToString() });
+            _greaterConditions.Add(new string[] { field, value?.ToString() });
+
+            return this;
+        }
+
+        public ISelectQueryProvider Less(string field, object value)
+        {
+            _lessConditions.Add(new string[] { field, value?.ToString() });
 
             return this;
         }
@@ -50,22 +60,26 @@ namespace Dmon.Model
 
         public IExecutable<DataTable> OrderBy(string field, bool ascending = true)
         {
-            MergeWhereConditions();
+            _orderBy = field;
 
-            _queryBuilder.Append($"\nORDER BY {field}");
             if (!ascending)
-                _queryBuilder.Append(" DESC");
+                _orderDirection = " DESC";
 
             return this;
         }
 
         public async Task<DataTable> ExecuteAsync()
         {
-            MergeWhereConditions();
-            MergeInRangeConditions();
-            MergeContainsConditions();
+            MergeConditions();
+
+            if (!string.IsNullOrEmpty(_orderBy))
+            {
+                _queryBuilder.Append($"\nORDER BY {_orderBy}{_orderDirection}");
+            }
 
             var sql = _queryBuilder.ToString();
+
+            System.Console.WriteLine(sql);
 
             var adaper = new SqlDataAdapter(sql, _connection);
             var ds = new DataSet();
@@ -75,11 +89,29 @@ namespace Dmon.Model
             return ds.Tables[0];
         }
 
-        private void MergeWhereConditions()
+        private void MergeConditions()
+        {
+            var s = true;
+            MergeWhereConditions(ref s);
+            MergeGreaterConditions(ref s);
+            MergeLessConditions(ref s);
+            MergeContainsConditions(ref s);
+        }
+
+        private void MergeWhereConditions(ref bool s)
         {
             if (_whereConditions.Count == 0) return;
+            if (s)
+            {
+                _queryBuilder.Append("\nWHERE ");
+                s = false;
+            }
+            else
+            {
+                _queryBuilder.Append(" AND ");
+            }
 
-            _queryBuilder.Append($"\nWHERE {_whereConditions[0][0]} = '{_whereConditions[0][1]}'");
+            _queryBuilder.Append($"{_whereConditions[0][0]} = '{_whereConditions[0][1]}'");
 
             for (int i = 1; i < _whereConditions.Count; i++)
             {
@@ -87,25 +119,64 @@ namespace Dmon.Model
             }
         }
 
-        private void MergeInRangeConditions()
+        private void MergeGreaterConditions(ref bool s)
         {
-            if (_inRangeConditions.Count == 0) return;
+            if (_greaterConditions.Count == 0) return;
 
-            _queryBuilder.Append($"\nWHERE {_inRangeConditions[0][0]} >= '{_inRangeConditions[0][1]}'"
-                + $" AND {_inRangeConditions[0][0]} <= '{_inRangeConditions[0][2]}'");
-
-            for (int i = 1; i < _inRangeConditions.Count; i++)
+            if (s)
             {
-                _queryBuilder.Append($" AND {_inRangeConditions[i][0]} >= '{_inRangeConditions[i][1]}' "
-                    + $"AND {_inRangeConditions[i][0]} <= '{_inRangeConditions[i][2]}'");
+                _queryBuilder.Append("\nWHERE ");
+                s = false;
+            }
+            else
+            {
+                _queryBuilder.Append(" AND ");
+            }
+
+            _queryBuilder.Append($"{_greaterConditions[0][0]} >= '{_greaterConditions[0][1]}'");
+
+            for (int i = 1; i < _greaterConditions.Count; i++)
+            {
+                _queryBuilder.Append($" AND {_greaterConditions[i][0]} >= '{_greaterConditions[i][1]}'");
             }
         }
 
-        private void MergeContainsConditions()
+        private void MergeLessConditions(ref bool s)
+        {
+            if (_lessConditions.Count == 0) return;
+
+            if (s)
+            {
+                _queryBuilder.Append("\nWHERE ");
+                s = false;
+            }
+            else
+            {
+                _queryBuilder.Append(" AND ");
+            }
+
+            _queryBuilder.Append($"{_lessConditions[0][0]} <= '{_lessConditions[0][1]}'");
+
+            for (int i = 1; i < _lessConditions.Count; i++)
+            {
+                _queryBuilder.Append($" AND {_lessConditions[i][0]} <= '{_lessConditions[i][1]}'");
+            }
+        }
+
+        private void MergeContainsConditions(ref bool s)
         {
             if (_containsConditions.Count == 0) return;
+            if (s)
+            {
+                _queryBuilder.Append("\nWHERE ");
+                s = false;
+            }
+            else
+            {
+                _queryBuilder.Append(" AND ");
+            }
 
-            _queryBuilder.Append($"\nWHERE {_containsConditions[0][0]} LIKE '%{_containsConditions[0][1]}%'");
+            _queryBuilder.Append($"{_containsConditions[0][0]} LIKE '%{_containsConditions[0][1]}%'");
 
             for (int i = 1; i < _containsConditions.Count; i++)
             {

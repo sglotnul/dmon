@@ -8,11 +8,11 @@ using System.Drawing;
 
 namespace Dmon
 {
-    internal class NullableControl : GroupedControlWithValue
+    internal class NullableControlWithValue : GroupedControlWithValue
     {
         private CheckBox _checkBox;
 
-        public NullableControl(string name, Control control, Func<Control, object> getValue) : base(name, control, getValue) 
+        public NullableControlWithValue(Control control, Func<Control, object> getValue) : base(control, getValue) 
         {
             GetValue = c => _checkBox.Checked ? getValue(c) : null;
         }

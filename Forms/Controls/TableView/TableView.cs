@@ -14,6 +14,8 @@ namespace Dmon
     {
         private readonly ContextMenu _contextMenu;
         private readonly DataGridView _dataGridView;
+        private readonly SplitContainer _splitContainer;
+        private readonly SideMenu _sideMenu;
 
         private readonly ITable _table;
         private readonly string _verboseName;
@@ -22,6 +24,9 @@ namespace Dmon
         {
             _verboseName = verboseName;
             _table = table;
+
+            _splitContainer = new SplitContainer();
+            _sideMenu = new SideMenu(_table.ColumnsConfiguration);
             _dataGridView = new DataGridView();
             _contextMenu = new ContextMenu();
 
@@ -168,7 +173,17 @@ namespace Dmon
 
             _dataGridView.Visible = false;
 
-            var rowData = await GetRowDataAsync(sortedColumn?.Name, sortOrder);
+            object[][] rowData;
+
+            try
+            {
+                rowData = await GetRowDataAsync(sortedColumn?.Name, sortOrder, _sideMenu.GetFilters());
+            }
+            catch
+            {
+                MessageBox.Show("Что-то пошло не так");
+                return;
+            }
 
             _dataGridView.Columns.Clear();
             _dataGridView.Rows.Clear();
@@ -182,19 +197,40 @@ namespace Dmon
             foreach (var data in rowData)
                 _dataGridView.Rows.Add(data);
 
-            if (selectedRowIndex != -1 && _dataGridView.Rows.Count >= selectedRowIndex)
+            if (selectedRowIndex != -1 && _dataGridView.Rows.Count > selectedRowIndex)
                 _dataGridView.Rows[selectedRowIndex].Selected = true;
 
             _dataGridView.Visible = true;
         }
 
-        private async Task<object[][]> GetRowDataAsync(string sortedColumn, SortOrder sortOrder)
+        private async Task<object[][]> GetRowDataAsync(string sortedColumn, SortOrder sortOrder, ConditionsComponent cmp)
         {
             var rows = new List<object[]>();
             var engine = _table.GetEngine();
 
             var selectQuery = engine
                 .Select(_table.ColumnsConfiguration.Keys.ToArray());
+
+            foreach(var c in cmp.RangeConditions.Keys)
+            {
+                var range = cmp.RangeConditions[c];
+                if (range[0] != null)
+                    selectQuery.Greater(c, range[0]);
+                if (range[1] != null)
+                    selectQuery.Less(c, range[1]);
+            }
+
+            foreach (var c in cmp.ContainsConditions.Keys)
+            {
+                var substring = cmp.ContainsConditions[c];
+                selectQuery.Contains(c, substring);
+            }
+
+            foreach (var c in cmp.EqualsConditions.Keys)
+            {
+                var value = cmp.ContainsConditions[c];
+                selectQuery.Where(c, value);
+            }
 
             if (!string.IsNullOrEmpty(sortedColumn))
             {
@@ -252,33 +288,48 @@ namespace Dmon
             await UpdateDgv();
         }
 
+        private async void OnFilter(object sender, EventArgs args)
+        {
+            await UpdateDgv();
+        }
+
         private void Initialize()
         {
-            var label = new Label 
-            { 
+            BackgroundImageLayout = ImageLayout.None;
+            Cursor = Cursors.Arrow;
+            Text = _verboseName;
+
+            InitializeSplitContainer();
+            Controls.Add(_splitContainer);
+
+            Enter += OnEnter;
+        }
+
+        private void InitializeSplitContainer()
+        {
+            _splitContainer.Dock = DockStyle.Fill;
+            _splitContainer.SplitterDistance = 800;
+
+            var label = new Label
+            {
                 Text = "Подождите...",
                 Location = new Point(60, 38),
                 Anchor = AnchorStyles.None
             };
 
-            BackgroundImageLayout = ImageLayout.None;
-            Cursor = Cursors.Arrow;
-            Text = _verboseName;
+            _sideMenu.OnFilter += OnFilter;
+            _splitContainer.Panel2.Controls.Add(_sideMenu);
 
             InitializeDataGridView();
-            Controls.Add(_dataGridView);
-            Controls.Add(label);
+            _splitContainer.Panel1.Controls.Add(_dataGridView);
+            _splitContainer.Panel1.Controls.Add(label);
 
             InitializeContextMenu();
-            ContextMenu = _contextMenu;
-
-            Enter += OnEnter;
+            _splitContainer.Panel1.ContextMenu = _contextMenu;
         }
 
         private void InitializeDataGridView()
         {
-            ((ISupportInitialize)_dataGridView).BeginInit();
-
             _dataGridView.BorderStyle = BorderStyle.None;
             _dataGridView.Cursor = Cursors.Hand;
             _dataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
@@ -299,8 +350,6 @@ namespace Dmon
             _dataGridView.KeyPress += OnKeyPress;
             _dataGridView.SortCompare += OnDataGridViewSortCompare;
             _dataGridView.Sorted += OnSorted;
-
-            ((ISupportInitialize)_dataGridView).EndInit();
         }
 
         private void InitializeContextMenu()
