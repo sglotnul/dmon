@@ -18,8 +18,7 @@ namespace Dmon
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm(new SqlConnection(GetConnectionString())));
-            //Application.Run(new Form1());
+            Application.Run(new AuthorizationForm(new SqlConnection(GetConnectionString())));
         }
 
         static string GetConnectionString()

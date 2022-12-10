@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Data;
 using System.Linq;
-using System.ComponentModel;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,6 +16,7 @@ namespace Dmon
         private readonly SplitContainer _splitContainer;
         private readonly SideMenu _sideMenu;
 
+        private readonly Label _label;
         private readonly ITable _table;
         private readonly string _verboseName;
 
@@ -29,6 +29,7 @@ namespace Dmon
             _sideMenu = new SideMenu(_table.ColumnsConfiguration);
             _dataGridView = new DataGridView();
             _contextMenu = new ContextMenu();
+            _label = new Label();
 
             Initialize();
         }
@@ -36,36 +37,53 @@ namespace Dmon
         private async Task DeleteEntryAsync(Dictionary<string, object> fieldsToFilter)
         {
             var query = _table
-                .GetEngine()
                 .Delete();
 
             foreach (var f in fieldsToFilter.Keys)
                 query.Where(f, fieldsToFilter[f]);
 
-            await query.ExecuteAsync()
-                .ConfigureAwait(false);
+            try
+            {
+                await query.ExecuteAsync()
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                throw new ApplicationException("Не удалось удалить запись");
+            }
         }
 
         private async Task InsertEntryAsync(DataEventArgs e)
         {
-            await _table
-                .GetEngine()
-                .Insert(e.Data)
-                .ExecuteAsync()
-                .ConfigureAwait(false);
+            try
+            {
+                await _table
+                    .Insert(e.Data)
+                    .ExecuteAsync()
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                throw new ApplicationException("Не удалось добавить запись");
+            }
         }
 
         private async Task UpdateEntryAsync(DataEventArgs e, Dictionary<string, object> fieldsToFilter)
         {
             var query = _table
-                .GetEngine()
                 .Update(e.Data);
 
             foreach (var f in fieldsToFilter.Keys)
                 query.Where(f, fieldsToFilter[f]);
 
-            await query.ExecuteAsync()
-                .ConfigureAwait(false);
+            try {
+                await query.ExecuteAsync()
+                    .ConfigureAwait(false);
+            }
+            catch
+            {
+                throw new ApplicationException("Не удалось обновить запись");
+            }
         }
 
         private async void OnDelete()
@@ -85,7 +103,14 @@ namespace Dmon
                     fieldsToFilter[columnName] = cell.Value;
             }
 
-            await DeleteEntryAsync(fieldsToFilter);
+            try
+            {
+                await DeleteEntryAsync(fieldsToFilter);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
 
             _dataGridView.Rows.RemoveAt(row.Index);
         }
@@ -143,9 +168,9 @@ namespace Dmon
                 {
                     await onSaveAction.Invoke(e);
                 }
-                catch
+                catch(Exception ex)
                 {
-                    MessageBox.Show("Не удалось сохранить изменения");
+                    MessageBox.Show(ex.Message);
                 }
 
                 await UpdateDgv();
@@ -179,6 +204,18 @@ namespace Dmon
             {
                 rowData = await GetRowDataAsync(sortedColumn?.Name, sortOrder, _sideMenu.GetFilters());
             }
+            catch (ApplicationException ex)
+            {
+
+                MessageBox.Show(ex.Message);
+                return;
+            }
+            catch (System.Data.SqlClient.SqlException)
+            {
+
+                _label.Text = "Что-то пошло не так";
+                return;
+            }
             catch
             {
                 MessageBox.Show("Что-то пошло не так");
@@ -206,9 +243,8 @@ namespace Dmon
         private async Task<object[][]> GetRowDataAsync(string sortedColumn, SortOrder sortOrder, ConditionsComponent cmp)
         {
             var rows = new List<object[]>();
-            var engine = _table.GetEngine();
 
-            var selectQuery = engine
+            var selectQuery = _table
                 .Select(_table.ColumnsConfiguration.Keys.ToArray());
 
             foreach(var c in cmp.RangeConditions.Keys)
@@ -310,19 +346,19 @@ namespace Dmon
             _splitContainer.Dock = DockStyle.Fill;
             _splitContainer.SplitterDistance = 800;
 
-            var label = new Label
-            {
-                Text = "Подождите...",
-                Location = new Point(60, 38),
-                Anchor = AnchorStyles.None
-            };
+            _label.Text = "Подождите...";
+            _label.AutoSize = true;
+            _label.TextAlign = ContentAlignment.MiddleCenter;
+            _label.Location = new Point(60, 38);
+            _label.Anchor = AnchorStyles.None;
+            _label.Font = new Font("Microsoft Sans Serif", 14F);
 
             _sideMenu.OnFilter += OnFilter;
             _splitContainer.Panel2.Controls.Add(_sideMenu);
 
             InitializeDataGridView();
             _splitContainer.Panel1.Controls.Add(_dataGridView);
-            _splitContainer.Panel1.Controls.Add(label);
+            _splitContainer.Panel1.Controls.Add(_label);
 
             InitializeContextMenu();
             _splitContainer.Panel1.ContextMenu = _contextMenu;

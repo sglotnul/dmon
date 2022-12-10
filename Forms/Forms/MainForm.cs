@@ -18,7 +18,8 @@ namespace Dmon
                 new TableView("Стадии", tableBuilder.BuildChampionshipStagesTable()),
                 new TableView("Участники", tableBuilder.BuildMembersTable()),
                 new TableView("Игры", tableBuilder.BuildPlaysTable()),
-                new TableView("Отношения: участник - игра", tableBuilder.BuildMemberToPlayTable())
+                new TableView("Отношения: участник - игра", tableBuilder.BuildMemberToPlayTable()),
+                new TableView("Пользователи", tableBuilder.BuildUsersTable())
             };
 
             _tabControl = new TableTabControl(tableViews);

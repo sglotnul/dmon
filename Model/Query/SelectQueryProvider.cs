@@ -79,8 +79,6 @@ namespace Dmon.Model
 
             var sql = _queryBuilder.ToString();
 
-            System.Console.WriteLine(sql);
-
             var adaper = new SqlDataAdapter(sql, _connection);
             var ds = new DataSet();
 

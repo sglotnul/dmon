@@ -74,10 +74,21 @@ namespace Dmon
                 { "memberId", new ColumnConfiguration(ColumnDataType.Int, "Id игры", isPrimaryKey: true) },
                 { "playId", new ColumnConfiguration(ColumnDataType.Int, "Id Чемпионата", isPrimaryKey: true) },
                 { "command", new ColumnConfiguration(ColumnDataType.String, "Команда") },
-                { "iswinner", new ColumnConfiguration(ColumnDataType.Bool, "Победитель") }
+                { "iswinner", new ColumnConfiguration(ColumnDataType.Bool, "Победитель", isRequired: false) }
             };
 
             return new Table(_connection, "MemberToPlay", configuration);
+        }
+
+        public Table BuildUsersTable()
+        {
+            var configuration = new Dictionary<string, ColumnConfiguration>()
+            {
+                { "username", new ColumnConfiguration(ColumnDataType.String, "Имя", isPrimaryKey: true) },
+                { "password", new ColumnConfiguration(ColumnDataType.String, "Пароль") },
+            };
+
+            return new Table(_connection, "Users", configuration);
         }
     }
 }

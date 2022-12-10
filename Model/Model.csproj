@@ -43,7 +43,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Query\DeleteQueryProvider.cs" />
+    <Compile Include="Query\ExistsQueryProvider.cs" />
     <Compile Include="Query\IExecutable.cs" />
+    <Compile Include="Query\IExistsQueryProvider.cs" />
     <Compile Include="Query\InsertQueryProvider.cs" />
     <Compile Include="Query\ISelectQueryProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -55,8 +57,6 @@
     <Compile Include="Tables\ColumnDataType.cs" />
     <Compile Include="Tables\Table.cs" />
     <Compile Include="Tables\ITable.cs" />
-    <Compile Include="Tables\ITableEngine.cs" />
-    <Compile Include="Tables\TableEngine.cs" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
