@@ -89,7 +89,7 @@ namespace Dmon
 
         private void InitializeColumns()
         {
-            foreach(var column in _columns)
+            foreach(var column in _columns.Reverse())
             {
                 var configuration = column.Configuration;
 

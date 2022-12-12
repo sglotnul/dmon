@@ -41,7 +41,7 @@ namespace Dmon
                 }
                 else
                 {
-                    var form = new MainForm(_connection);
+                    var form = new MainForm(_connection, username);
                     form.Show();
 
                     Visible = false;

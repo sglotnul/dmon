@@ -80,7 +80,7 @@ namespace Dmon
 
         private void InitializeFilters()
         {
-            foreach (var column in _columnsConfiguration.Keys)
+            foreach (var column in _columnsConfiguration.Keys.Reverse())
             {
                 var configuration = _columnsConfiguration[column];
 

@@ -4,6 +4,7 @@ namespace Dmon.Model
 {
     public interface ITable
     {
+        string Name { get; }
         IReadOnlyDictionary<string, ColumnConfiguration> ColumnsConfiguration { get; }
         IDeleteQueryProvider Delete();
         ISelectQueryProvider Select(params string[] fields);

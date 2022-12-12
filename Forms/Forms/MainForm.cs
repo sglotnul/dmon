@@ -8,18 +8,22 @@ namespace Dmon
     {
         private readonly TableTabControl _tabControl;
 
-        public MainForm(SqlConnection connection)
+        public MainForm(SqlConnection connection, string username)
         {
             var tableBuilder = new TableBuilder(connection);
+            var roleRepository = new RolesRepository(username, connection);
 
             var tableViews = new TableView[]
             {
-                new TableView("Чемпионаты", tableBuilder.BuildChampionshipsTable()),
-                new TableView("Стадии", tableBuilder.BuildChampionshipStagesTable()),
-                new TableView("Участники", tableBuilder.BuildMembersTable()),
-                new TableView("Игры", tableBuilder.BuildPlaysTable()),
-                new TableView("Отношения: участник - игра", tableBuilder.BuildMemberToPlayTable()),
-                new TableView("Пользователи", tableBuilder.BuildUsersTable())
+                new TableView("Чемпионаты", tableBuilder.BuildChampionshipsTable(), roleRepository),
+                new TableView("Стадии", tableBuilder.BuildChampionshipStagesTable(), roleRepository),
+                new TableView("Участники", tableBuilder.BuildMembersTable(), roleRepository),
+                new TableView("Игры", tableBuilder.BuildPlaysTable(), roleRepository),
+                new TableView("Отношения: участник - игра", tableBuilder.BuildMemberToPlayTable(), roleRepository),
+                new TableView("Пользователи", tableBuilder.BuildUsersTable(), roleRepository),
+                new TableView("Роли", tableBuilder.BuildRolesTable(), roleRepository),
+                new TableView("Отношения: роль - пользователь", tableBuilder.BuildRoleToUserTable(), roleRepository),
+                new TableView("Отношения: роль - таблица", tableBuilder.BuildRoleToTableTable(), roleRepository),
             };
 
             _tabControl = new TableTabControl(tableViews);

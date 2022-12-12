@@ -18,12 +18,14 @@ namespace Dmon
 
         private readonly Label _label;
         private readonly ITable _table;
+        private readonly RolesRepository _rolesRepository;
         private readonly string _verboseName;
 
-        public TableView(string verboseName, ITable table)
+        public TableView(string verboseName, ITable table, RolesRepository rolesRepository)
         {
             _verboseName = verboseName;
             _table = table;
+            _rolesRepository = rolesRepository;
 
             _splitContainer = new SplitContainer();
             _sideMenu = new SideMenu(_table.ColumnsConfiguration);
@@ -36,6 +38,10 @@ namespace Dmon
 
         private async Task DeleteEntryAsync(Dictionary<string, object> fieldsToFilter)
         {
+            var permissions = await _rolesRepository.GetUserPermissionsAsync(_table.Name);
+            if ((permissions & UserPermissions.Write) == 0)
+                throw new UnauthorizedAccessException("Недостаточно прав");
+
             var query = _table
                 .Delete();
 
@@ -55,6 +61,10 @@ namespace Dmon
 
         private async Task InsertEntryAsync(DataEventArgs e)
         {
+            var permissions = await _rolesRepository.GetUserPermissionsAsync(_table.Name);
+            if ((permissions & UserPermissions.Write) == 0)
+                throw new UnauthorizedAccessException("Недостаточно прав");
+
             try
             {
                 await _table
@@ -70,6 +80,10 @@ namespace Dmon
 
         private async Task UpdateEntryAsync(DataEventArgs e, Dictionary<string, object> fieldsToFilter)
         {
+            var permissions = await _rolesRepository.GetUserPermissionsAsync(_table.Name);
+            if ((permissions & UserPermissions.Write) == 0)
+                throw new UnauthorizedAccessException("Недостаточно прав");
+
             var query = _table
                 .Update(e.Data);
 
@@ -106,13 +120,13 @@ namespace Dmon
             try
             {
                 await DeleteEntryAsync(fieldsToFilter);
+
+                _dataGridView.Rows.RemoveAt(row.Index);
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-
-            _dataGridView.Rows.RemoveAt(row.Index);
         }
 
         private void OnInsert()
@@ -204,23 +218,28 @@ namespace Dmon
             {
                 rowData = await GetRowDataAsync(sortedColumn?.Name, sortOrder, _sideMenu.GetFilters());
             }
-            catch (ApplicationException ex)
+            catch (UnauthorizedAccessException)
             {
+                _label.Text = "Недотаточно прав";
+                return;
+            }
+            //catch (ApplicationException ex)
+            //{
 
-                MessageBox.Show(ex.Message);
-                return;
-            }
-            catch (System.Data.SqlClient.SqlException)
-            {
+            //    MessageBox.Show(ex.Message);
+            //    return;
+            //}
+            //catch (System.Data.SqlClient.SqlException)
+            //{
 
-                _label.Text = "Что-то пошло не так";
-                return;
-            }
-            catch
-            {
-                MessageBox.Show("Что-то пошло не так");
-                return;
-            }
+            //    _label.Text = "Что-то пошло не так";
+            //    return;
+            //}
+            //catch
+            //{
+            //    MessageBox.Show("Что-то пошло не так");
+            //    return;
+            //}
 
             _dataGridView.Columns.Clear();
             _dataGridView.Rows.Clear();
@@ -242,6 +261,10 @@ namespace Dmon
 
         private async Task<object[][]> GetRowDataAsync(string sortedColumn, SortOrder sortOrder, ConditionsComponent cmp)
         {
+            var permissions = await _rolesRepository.GetUserPermissionsAsync(_table.Name);
+            if ((permissions & UserPermissions.Read) == 0)
+                throw new UnauthorizedAccessException();
+
             var rows = new List<object[]>();
 
             var selectQuery = _table
