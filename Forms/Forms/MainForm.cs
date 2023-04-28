@@ -13,7 +13,7 @@ namespace Dmon
             var tableBuilder = new TableBuilder(connection);
             var roleRepository = new RolesRepository(username, connection);
 
-            var tableViews = new TableView[]
+            var tableViews = new Control[]
             {
                 new TableView("Категории", tableBuilder.BuildCategoriesTable(), roleRepository),
                 new TableView("Продукты", tableBuilder.BuildProductsTable(), roleRepository),
@@ -23,6 +23,7 @@ namespace Dmon
                 new TableView("Роли", tableBuilder.BuildRolesTable(), roleRepository),
                 new TableView("Отношения: роль - пользователь", tableBuilder.BuildRoleToUserTable(), roleRepository),
                 new TableView("Отношения: роль - таблица", tableBuilder.BuildRoleToTableTable(), roleRepository),
+                new DumbTableView("Fuck me", roleRepository)
             };
 
             _tabControl = new TableTabControl(tableViews);

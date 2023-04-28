@@ -75,6 +75,9 @@
     <Compile Include="Controls\TableTabControl.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Controls\TableView\DumbTableView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Controls\TableView\TableView.cs">
       <SubType>Component</SubType>
     </Compile>

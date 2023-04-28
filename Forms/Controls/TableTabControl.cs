@@ -5,7 +5,7 @@ namespace Dmon
 {
     internal class TableTabControl : TabControl
     {
-        public TableTabControl(TableView[] tableViews)
+        public TableTabControl(Control[] tableViews)
         {
             Controls.AddRange(tableViews);
         }
