@@ -25,7 +25,7 @@ namespace Dmon
                 { ColumnDataType.Date, v => new DateTimePicker() { Value = v is DateTime val ? val : DateTime.Now } },
                 { ColumnDataType.Bool, v => new CheckBox() { Checked = v is bool val && val } },
                 { ColumnDataType.Int, v => new CustomNumericUpDown() { Value = v is int val ? val : 0 } },
-                { ColumnDataType.Double, v => new CustomNumericUpDown(2) { Value = v is int val ? val : .0m } },
+                { ColumnDataType.Double, v => new CustomNumericUpDown(2) { Value = v is decimal val ? val : .0m } },
                 { ColumnDataType.String, v => new TextBox() { Text = v?.ToString() } },
             };
 

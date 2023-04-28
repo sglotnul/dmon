@@ -45,7 +45,11 @@ namespace Dmon
                     form.Show();
 
                     Visible = false;
-                    form.FormClosed += (o, s) => Close();
+                    form.FormClosed += (o, s) =>
+                    {
+                        _connection.Close();
+                        Close();
+                    };
                 }
             }
             catch

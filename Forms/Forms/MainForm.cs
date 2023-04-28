@@ -15,11 +15,10 @@ namespace Dmon
 
             var tableViews = new TableView[]
             {
-                new TableView("Чемпионаты", tableBuilder.BuildChampionshipsTable(), roleRepository),
-                new TableView("Стадии", tableBuilder.BuildChampionshipStagesTable(), roleRepository),
-                new TableView("Участники", tableBuilder.BuildMembersTable(), roleRepository),
-                new TableView("Игры", tableBuilder.BuildPlaysTable(), roleRepository),
-                new TableView("Отношения: участник - игра", tableBuilder.BuildMemberToPlayTable(), roleRepository),
+                new TableView("Категории", tableBuilder.BuildCategoriesTable(), roleRepository),
+                new TableView("Продукты", tableBuilder.BuildProductsTable(), roleRepository),
+                new TableView("Магазины", tableBuilder.BuildStoresTable(), roleRepository),
+                new TableView("Отношения: продукт - магазин", tableBuilder.BuildProductToStoreTable(), roleRepository),
                 new TableView("Пользователи", tableBuilder.BuildUsersTable(), roleRepository),
                 new TableView("Роли", tableBuilder.BuildRolesTable(), roleRepository),
                 new TableView("Отношения: роль - пользователь", tableBuilder.BuildRoleToUserTable(), roleRepository),

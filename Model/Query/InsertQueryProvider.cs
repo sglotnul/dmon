@@ -17,12 +17,10 @@ namespace Dmon.Model
 
         public InsertQueryProvider(SqlConnection connection, string table, Dictionary<string, object> values)
         {
-            CultureInfo newCulture = (CultureInfo)Thread.CurrentThread.CurrentCulture.Clone();
-            newCulture.DateTimeFormat.ShortDatePattern = "yyyy-MM-dd";
-            Thread.CurrentThread.CurrentCulture = newCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
             _connection = connection;
-            _command = $"INSERT INTO {table} ({string.Join(",", values.Keys)}) VALUES ({string.Join(",", values.Values.Select(v => v == null ? "NULL" : $"'{v}'"))})";
+            _command = $"INSERT INTO {table} ({string.Join(",", values.Keys)}) VALUES ({string.Join(",", values.Values.Select(v => v == null ? "NULL" : $"N'{v}'"))})";
             Console.WriteLine(_command);
         }
 

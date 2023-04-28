@@ -21,6 +21,8 @@ namespace Dmon
         private readonly RolesRepository _rolesRepository;
         private readonly string _verboseName;
 
+        private bool canWrite = true;
+
         public TableView(string verboseName, ITable table, RolesRepository rolesRepository)
         {
             _verboseName = verboseName;
@@ -102,7 +104,7 @@ namespace Dmon
 
         private async void OnDelete()
         {
-            if (_dataGridView.SelectedRows.Count == 0) return;
+            if (_dataGridView.SelectedRows.Count == 0 || !canWrite) return;
 
             var row = _dataGridView.SelectedRows[0];
 
@@ -131,6 +133,8 @@ namespace Dmon
 
         private void OnInsert()
         {
+            if (!canWrite) return;
+
             var data = new List<CellData>(_table.ColumnsConfiguration.Count);
 
             foreach (var column in _table.ColumnsConfiguration.Keys)
@@ -223,23 +227,23 @@ namespace Dmon
                 _label.Text = "Недотаточно прав";
                 return;
             }
-            //catch (ApplicationException ex)
-            //{
+            catch (ApplicationException ex)
+            {
 
-            //    MessageBox.Show(ex.Message);
-            //    return;
-            //}
-            //catch (System.Data.SqlClient.SqlException)
-            //{
+                MessageBox.Show(ex.Message);
+                return;
+            }
+            catch (System.Data.SqlClient.SqlException)
+            {
 
-            //    _label.Text = "Что-то пошло не так";
-            //    return;
-            //}
-            //catch
-            //{
-            //    MessageBox.Show("Что-то пошло не так");
-            //    return;
-            //}
+                _label.Text = "Что-то пошло не так";
+                return;
+            }
+            catch
+            {
+                MessageBox.Show("Что-то пошло не так");
+                return;
+            }
 
             _dataGridView.Columns.Clear();
             _dataGridView.Rows.Clear();
@@ -262,6 +266,7 @@ namespace Dmon
         private async Task<object[][]> GetRowDataAsync(string sortedColumn, SortOrder sortOrder, ConditionsComponent cmp)
         {
             var permissions = await _rolesRepository.GetUserPermissionsAsync(_table.Name);
+            canWrite = (permissions & UserPermissions.Write) != 0;
             if ((permissions & UserPermissions.Read) == 0)
                 throw new UnauthorizedAccessException();
 

@@ -19,11 +19,9 @@ namespace Dmon.Model
 
         public UpdateQueryProvider(SqlConnection connection, string table, Dictionary<string, object> values)
         {
-            CultureInfo newCulture = (CultureInfo)Thread.CurrentThread.CurrentCulture.Clone();
-            newCulture.DateTimeFormat.ShortDatePattern = "yyyy-MM-dd";
-            Thread.CurrentThread.CurrentCulture = newCulture;
+            Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-            var pairs = values.Select(pair => $"{pair.Key}={(pair.Value == null ? "NULL" : $"'{pair.Value}'")}");
+            var pairs = values.Select(pair => $"{pair.Key}={(pair.Value == null ? "NULL" : $"N'{pair.Value}'")}");
 
             _connection = connection;
             _queryBuilder = new StringBuilder($"UPDATE {table} SET {string.Join(",", pairs)}");
@@ -44,6 +42,7 @@ namespace Dmon.Model
 
             var command = _connection.CreateCommand();
             command.CommandText = _queryBuilder.ToString();
+            Console.WriteLine(command.CommandText);
 
             int res;
 
@@ -63,11 +62,11 @@ namespace Dmon.Model
         {
             if (_whereConditions.Count == 0) return;
 
-            _queryBuilder.Append($"\nWHERE {_whereConditions[0][0]} = '{_whereConditions[0][1]}'");
+            _queryBuilder.Append($"\nWHERE {_whereConditions[0][0]} = N'{_whereConditions[0][1]}'");
 
             for (int i = 1; i < _whereConditions.Count; i++)
             {
-                _queryBuilder.Append($" AND {_whereConditions[i][0]} = '{_whereConditions[i][1]}'");
+                _queryBuilder.Append($" AND {_whereConditions[i][0]} = N'{_whereConditions[i][1]}'");
             }
         }
     }

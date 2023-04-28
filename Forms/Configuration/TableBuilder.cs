@@ -14,70 +14,52 @@ namespace Dmon
             _connection = connection;
         }
 
-        public Table BuildChampionshipsTable()
+        public Table BuildCategoriesTable()
+        {
+            var configuration = new Dictionary<string, ColumnConfiguration>()
+            {
+                { "name", new ColumnConfiguration(ColumnDataType.String, "Название", isPrimaryKey: true) },
+            };
+
+            return new Table(_connection, "Categories", configuration);
+        }
+
+        public Table BuildProductsTable()
+        {
+            var configuration = new Dictionary<string, ColumnConfiguration>()
+            {
+                { "id", new ColumnConfiguration(ColumnDataType.Int, "Артикул", isPrimaryKey: true, isAutoField: true) },
+                { "name", new ColumnConfiguration(ColumnDataType.String, "Название") },
+                { "price", new ColumnConfiguration(ColumnDataType.Double, "Цена") },
+                { "categoryName", new ColumnConfiguration(ColumnDataType.String, "Категория") },
+                { "dt", new ColumnConfiguration(ColumnDataType.DateTime, "DT") }
+            };
+
+            return new Table(_connection, "Products", configuration);
+        }
+
+        public Table BuildStoresTable()
         {
             var configuration = new Dictionary<string, ColumnConfiguration>()
             {
                 { "id", new ColumnConfiguration(ColumnDataType.Int, "Id", isPrimaryKey: true, isAutoField: true) },
-                { "name", new ColumnConfiguration(ColumnDataType.String, "Имя") },
-                { "startsAt", new ColumnConfiguration(ColumnDataType.Date, "Дата начала") },
-                { "endsAt", new ColumnConfiguration(ColumnDataType.Date, "Дата окончания", isRequired: false) }
+                { "location", new ColumnConfiguration(ColumnDataType.String, "Местоположение") },
+                { "manager", new ColumnConfiguration(ColumnDataType.String, "Менеджер") },
             };
 
-            return new Table(_connection, "Championships", configuration);
+            return new Table(_connection, "Stores", configuration);
         }
 
-        public Table BuildChampionshipStagesTable()
+        public Table BuildProductToStoreTable()
         {
             var configuration = new Dictionary<string, ColumnConfiguration>()
             {
-                { "championshipId", new ColumnConfiguration(ColumnDataType.Int, "Id чемпионата", isPrimaryKey: true) },
-                { "name", new ColumnConfiguration(ColumnDataType.String, "Название стадии", isPrimaryKey: true) },
-                { "startsAt", new ColumnConfiguration(ColumnDataType.Date, "Дата начала стадии") },
-                { "endsAt", new ColumnConfiguration(ColumnDataType.Date, "Дата окончания стадии", isRequired: false) }
+                { "storeId", new ColumnConfiguration(ColumnDataType.Int, "Id магазина", isPrimaryKey: true) },
+                { "productId", new ColumnConfiguration(ColumnDataType.Int, "Id продукта", isPrimaryKey: true) },
+                { "productCount", new ColumnConfiguration(ColumnDataType.Int, "Количество") }
             };
 
-            return new Table(_connection, "ChampionshipStages", configuration);
-        }
-
-        public Table BuildMembersTable()
-        {
-            var configuration = new Dictionary<string, ColumnConfiguration>()
-            {
-                { "id", new ColumnConfiguration(ColumnDataType.Int, "Id участника", isPrimaryKey: true, isAutoField: true) },
-                { "name", new ColumnConfiguration(ColumnDataType.String, "Имя участника", isPrimaryKey: true) },
-                { "country", new ColumnConfiguration(ColumnDataType.String, "Страна участника") },
-            };
-
-            return new Table(_connection, "Members", configuration);
-        }
-
-        public Table BuildPlaysTable()
-        {
-            var configuration = new Dictionary<string, ColumnConfiguration>()
-            {
-                { "id", new ColumnConfiguration(ColumnDataType.Int, "Id", isPrimaryKey: true, isAutoField: true) },
-                { "championshipId", new ColumnConfiguration(ColumnDataType.Int, "Id Чемпионата") },
-                { "stageName", new ColumnConfiguration(ColumnDataType.String, "Название стадии") },
-                { "location", new ColumnConfiguration(ColumnDataType.String, "Место проведения") },
-                { "startsAt", new ColumnConfiguration(ColumnDataType.DateTime, "Дата и время начала") },
-                { "endsAt", new ColumnConfiguration(ColumnDataType.DateTime, "Дата и время окончания", isRequired: false) },
-            };
-
-            return new Table(_connection, "Plays", configuration);
-        }
-
-        public Table BuildMemberToPlayTable()
-        {
-            var configuration = new Dictionary<string, ColumnConfiguration>()
-            {
-                { "memberId", new ColumnConfiguration(ColumnDataType.Int, "Id игры", isPrimaryKey: true) },
-                { "playId", new ColumnConfiguration(ColumnDataType.Int, "Id Чемпионата", isPrimaryKey: true) },
-                { "command", new ColumnConfiguration(ColumnDataType.String, "Команда") },
-                { "iswinner", new ColumnConfiguration(ColumnDataType.Bool, "Победитель", isRequired: false) }
-            };
-
-            return new Table(_connection, "MemberToPlay", configuration);
+            return new Table(_connection, "ProductToStore", configuration);
         }
 
         public Table BuildUsersTable()
