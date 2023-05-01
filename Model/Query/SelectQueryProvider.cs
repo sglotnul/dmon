@@ -109,11 +109,11 @@ namespace Dmon.Model
                 _queryBuilder.Append(" AND ");
             }
 
-            _queryBuilder.Append($"{_whereConditions[0][0]} = '{_whereConditions[0][1]}'");
+            _queryBuilder.Append($"{_whereConditions[0][0]} = N'{_whereConditions[0][1]}'");
 
             for (int i = 1; i < _whereConditions.Count; i++)
             {
-                _queryBuilder.Append($" AND {_whereConditions[i][0]} = '{_whereConditions[i][1]}'");
+                _queryBuilder.Append($" AND {_whereConditions[i][0]} = N'{_whereConditions[i][1]}'");
             }
         }
 
@@ -131,11 +131,11 @@ namespace Dmon.Model
                 _queryBuilder.Append(" AND ");
             }
 
-            _queryBuilder.Append($"{_greaterConditions[0][0]} >= '{_greaterConditions[0][1]}'");
+            _queryBuilder.Append($"{_greaterConditions[0][0]} >= N'{_greaterConditions[0][1]}'");
 
             for (int i = 1; i < _greaterConditions.Count; i++)
             {
-                _queryBuilder.Append($" AND {_greaterConditions[i][0]} >= '{_greaterConditions[i][1]}'");
+                _queryBuilder.Append($" AND {_greaterConditions[i][0]} >= N'{_greaterConditions[i][1]}'");
             }
         }
 
@@ -153,11 +153,11 @@ namespace Dmon.Model
                 _queryBuilder.Append(" AND ");
             }
 
-            _queryBuilder.Append($"{_lessConditions[0][0]} <= '{_lessConditions[0][1]}'");
+            _queryBuilder.Append($"{_lessConditions[0][0]} <= N'{_lessConditions[0][1]}'");
 
             for (int i = 1; i < _lessConditions.Count; i++)
             {
-                _queryBuilder.Append($" AND {_lessConditions[i][0]} <= '{_lessConditions[i][1]}'");
+                _queryBuilder.Append($" AND {_lessConditions[i][0]} <= N'{_lessConditions[i][1]}'");
             }
         }
 
@@ -174,11 +174,11 @@ namespace Dmon.Model
                 _queryBuilder.Append(" AND ");
             }
 
-            _queryBuilder.Append($"{_containsConditions[0][0]} LIKE '%{_containsConditions[0][1]}%'");
+            _queryBuilder.Append($"{_containsConditions[0][0]} LIKE N'%{_containsConditions[0][1]}%'");
 
             for (int i = 1; i < _containsConditions.Count; i++)
             {
-                _queryBuilder.Append($" AND {_containsConditions[0][0]} LIKE '%{_containsConditions[0][1]}%'");
+                _queryBuilder.Append($" AND {_containsConditions[0][0]} LIKE N'%{_containsConditions[0][1]}%'");
             }
         }
     }

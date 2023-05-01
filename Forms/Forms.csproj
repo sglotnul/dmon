@@ -97,6 +97,7 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositiories\DumbRepository.cs" />
     <Compile Include="Repositiories\RolesRepository.cs" />
     <Compile Include="UserPermissions.cs" />
     <EmbeddedResource Include="Forms\AuthorizationForm.resx">
@@ -130,6 +131,9 @@
       <Project>{85cbb3f8-a2cd-4cf4-ab38-1a1a53d52fb3}</Project>
       <Name>Model</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Entities" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

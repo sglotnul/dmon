@@ -32,7 +32,7 @@ namespace Dmon.Model
             else
                 _queryBuilder.Append(" AND ");
 
-            _queryBuilder.Append($"{column}='{value}'");
+            _queryBuilder.Append($"{column}=N'{value}'");
 
             return this;
         }

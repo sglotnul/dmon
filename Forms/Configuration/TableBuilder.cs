@@ -31,8 +31,7 @@ namespace Dmon
                 { "id", new ColumnConfiguration(ColumnDataType.Int, "Артикул", isPrimaryKey: true, isAutoField: true) },
                 { "name", new ColumnConfiguration(ColumnDataType.String, "Название") },
                 { "price", new ColumnConfiguration(ColumnDataType.Double, "Цена") },
-                { "categoryName", new ColumnConfiguration(ColumnDataType.String, "Категория") },
-                { "dt", new ColumnConfiguration(ColumnDataType.DateTime, "DT") }
+                { "categoryName", new ColumnConfiguration(ColumnDataType.String, "Категория") }
             };
 
             return new Table(_connection, "Products", configuration);
